@@ -3,6 +3,8 @@ package commands
 import (
 	"fmt"
 	"io"
+	"sort"
+	"strings"
 
 	cmds "github.com/ipfs/go-ipfs/commands"
 	logging "gx/ipfs/Qmazh5oNUVsDZTs2g59rq8aYQqwpss8tcUWQzor5sCCEuH/go-log"
@@ -25,6 +27,7 @@ output of a running daemon.
 
 	Subcommands: map[string]*cmds.Command{
 		"level": logLevelCmd,
+		"ls":    logLsCmd,
 		"tail":  logTailCmd,
 	},
 }
@@ -67,6 +70,30 @@ output of a running daemon.
 	Marshalers: cmds.MarshalerMap{
 		cmds.Text: MessageTextMarshaler,
 	},
+	Type: MessageOutput{},
+}
+
+var logLsCmd = &cmds.Command{
+	Helptext: cmds.HelpText{
+		Tagline: "Print a list of logger subsystems.",
+		ShortDescription: `
+'ipfs log ls' is a utility command used to print a list of logger subsystems.
+`,
+	},
+
+	Run: func(req cmds.Request, res cmds.Response) {
+		logging.Logger("awesomelog")
+		logging.Logger("testlog")
+		names := logging.GetSubsystemNames()
+		sort.Strings(names)
+		output := strings.Join(names, "\n") + "\n"
+		res.SetOutput(&MessageOutput{output})
+	},
+
+	Marshalers: cmds.MarshalerMap{
+		cmds.Text: MessageTextMarshaler,
+	},
+
 	Type: MessageOutput{},
 }
 
